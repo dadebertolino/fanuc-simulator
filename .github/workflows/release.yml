@@ -1,0 +1,115 @@
+name: Build e Release
+
+# Si attiva quando pushi un tag tipo v1.2.0
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Ricava la versione dal tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Verifica coerenza versione <-> tag
+        run: |
+          TAG_VER="${{ steps.ver.outputs.version }}"
+          HEADER_VER=$(grep -oP 'Version:\s*\K[0-9.]+' fanuc-simulator.php)
+          CONST_VER=$(grep -oP "FANUC_SIM_VERSION',\s*'\K[0-9.]+" fanuc-simulator.php)
+          README_VER=$(grep -oP 'Stable tag:\s*\K[0-9.]+' readme.txt)
+          echo "Tag=$TAG_VER  Header=$HEADER_VER  Costante=$CONST_VER  Readme=$README_VER"
+          if [ "$HEADER_VER" != "$TAG_VER" ] || [ "$CONST_VER" != "$TAG_VER" ] || [ "$README_VER" != "$TAG_VER" ]; then
+            echo "::error::Versione non coerente col tag ($TAG_VER): header=$HEADER_VER costante=$CONST_VER readme=$README_VER"
+            exit 1
+          fi
+
+      - name: Lint PHP
+        run: |
+          find . -name "*.php" -not -path "./build/*" -print0 \
+            | xargs -0 -n1 -P4 php -l
+
+      - name: Lint JS del simulatore
+        run: |
+          # Estrae lo <script> inline da simulator.html e lo passa a node --check
+          node -e '
+            const fs=require("fs");
+            const s=fs.readFileSync("assets/simulator.html","utf8");
+            const js=s.split("<script>")[1].split("</script>")[0];
+            fs.writeFileSync("/tmp/sim.js",js);
+          '
+          node --check /tmp/sim.js
+          node --check assets/js/admin.js
+
+      - name: Verifica che non siano rientrate risorse esterne
+        run: |
+          # Il simulatore deve restare autonomo: niente CDN, niente Google Fonts.
+          if grep -nE 'https?://(cdnjs|cdn\.jsdelivr|unpkg|fonts\.(googleapis|gstatic))' assets/simulator.html; then
+            echo "::error::assets/simulator.html carica risorse da un servizio esterno."
+            exit 1
+          fi
+
+      - name: Costruisci lo ZIP
+        run: |
+          SLUG="fanuc-simulator"
+          mkdir -p build/"$SLUG"
+          # NB: "vendor" e' escluso ANCORATO ALLA RADICE (/vendor). Un exclude
+          # non ancorato eliminerebbe anche assets/vendor/three.min.js, che qui
+          # e' un asset di runtime obbligatorio e non una dipendenza Composer.
+          rsync -a ./ build/"$SLUG"/ \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "build" \
+            --exclude "node_modules" \
+            --exclude "/vendor" \
+            --exclude "*.zip" \
+            --exclude ".DS_Store" \
+            --exclude ".gitignore"
+          cd build
+          zip -r "../${SLUG}-${GITHUB_REF_NAME}.zip" "$SLUG" >/dev/null
+          cd ..
+          echo "Contenuto pacchetto:"
+          unzip -l "${SLUG}-${GITHUB_REF_NAME}.zip"
+
+      - name: Verifica che il pacchetto sia completo
+        run: |
+          SLUG="fanuc-simulator"
+          ZIP="${SLUG}-${GITHUB_REF_NAME}.zip"
+          MANCANTI=0
+          for f in \
+            "$SLUG/fanuc-simulator.php" \
+            "$SLUG/readme.txt" \
+            "$SLUG/inc/class-updater.php" \
+            "$SLUG/assets/simulator.html" \
+            "$SLUG/assets/vendor/three.min.js" \
+            "$SLUG/assets/fonts/JetBrainsMono.woff2" \
+            "$SLUG/assets/fonts/IBMPlexSans.woff2" \
+            "$SLUG/assets/css/db-admin-ui.css" \
+            "$SLUG/assets/css/admin.css" \
+            "$SLUG/assets/js/admin.js" ; do
+            if ! unzip -l "$ZIP" | grep -qF " $f"; then
+              echo "::error::File mancante nel pacchetto: $f"
+              MANCANTI=1
+            fi
+          done
+          exit $MANCANTI
+
+      - name: Crea la Release e allega lo ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "FANUC ER-4iA Simulator ${{ github.ref_name }}"
+          files: fanuc-simulator-${{ github.ref_name }}.zip
+          generate_release_notes: true

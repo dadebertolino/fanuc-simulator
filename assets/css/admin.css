@@ -1,0 +1,60 @@
+/**
+ * FANUC Simulator — stile specifico della pagina admin.
+ * Estende db-admin-ui.css: qui solo cio' che il design system non copre.
+ */
+
+.fanuc-sim-wrap .db-ui-card { margin-bottom: 16px; }
+
+/* Riga di stato: usa le stat del design system in griglia fluida */
+.fanuc-sim-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+/* Campo shortcode + pulsante copia */
+.fanuc-sim-copy {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.fanuc-sim-copy .db-ui-input {
+    flex: 1 1 320px;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 13px;
+}
+
+.fanuc-sim-feedback {
+    margin: 8px 0 0;
+    min-height: 18px;
+    font-size: 12px;
+    color: var(--db-success);
+}
+.fanuc-sim-feedback.is-error { color: var(--db-danger); }
+
+.fanuc-sim-links { margin: 0; list-style: none; }
+.fanuc-sim-links li { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.fanuc-sim-links .dashicons { color: var(--db-text-muted); }
+
+.fanuc-sim-note {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: var(--db-text-muted);
+}
+
+.fanuc-sim-tree {
+    margin: 0;
+    padding: 12px 14px;
+    background: var(--db-bg-subtle);
+    border: 1px solid var(--db-border-light);
+    border-radius: var(--db-radius);
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+}
+
+@media screen and (max-width: 782px) {
+    .fanuc-sim-copy .db-ui-input { flex-basis: 100%; }
+}

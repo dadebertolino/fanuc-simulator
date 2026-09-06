@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FANUC ER-4iA Simulator by Prof. D.Bertolino</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+/* Font self-hosted (SIL OFL 1.1): file variabili, un solo file per famiglia.
+   Caricarli da fonts.googleapis.com invierebbe l'IP di ogni studente a Google
+   e renderebbe il simulatore inutilizzabile senza connessione. */
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400 700;font-display:swap;
+  src:url('fonts/JetBrainsMono.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:300 600;font-stretch:100%;font-display:swap;
+  src:url('fonts/IBMPlexSans.woff2') format('woff2')}
 :root{
   --bg:#0e1420;--panel:#0f1620;--border:#1a2535;--accent:#f5a623;
   --fanuc:#f5c518;--text:#b8c4d0;--dim:#4a5868;--bright:#eef1f4;
@@ -67,7 +73,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
 .ovr-v{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);min-width:40px}
 .ovr-u{font-size:11px;color:var(--dim)}
 
-/* ── TP Editor v2 — Syntax Highlighted ── */
+/* ── TP Editor ── */
 .tp-wrap{position:relative;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--bg)}
 .tp-gutter{position:absolute;left:0;top:0;bottom:0;width:32px;background:#0c1018;border-right:1px solid var(--border);overflow:hidden;pointer-events:none}
 .tp-gutter .ln{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:18px;color:var(--dim);text-align:right;padding-right:6px;height:18px}
@@ -76,10 +82,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
 .tp-gutter .ln.bp::before{content:'●';color:var(--red);margin-right:2px;font-size:8px}
 #tp-area{font-family:'JetBrains Mono',monospace;font-size:10px;line-height:18px;background:transparent;border:none;color:var(--bright);padding:0 8px 8px 38px;width:100%;height:210px;resize:vertical;outline:none;overflow-y:auto;white-space:pre;tab-size:2}
 #tp-area:focus{box-shadow:inset 0 0 0 1px var(--accent)}
-.tp-highlight{position:absolute;left:32px;right:0;top:0;pointer-events:none;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:18px;padding:0 8px;white-space:pre;overflow:hidden;color:transparent}
-.tp-highlight .kw{color:#e06c75}.tp-highlight .pt{color:#61afef}.tp-highlight .num{color:#d19a66}
-.tp-highlight .io{color:#c678dd}.tp-highlight .cmt{color:#5c6370;font-style:italic}.tp-highlight .str{color:#98c379}
-.tp-highlight .lbl-ref{color:#e5c07b}
 
 /* TP toolbar */
 .tp-bar{display:flex;gap:3px;padding:3px 8px;background:#0c1018;border-top:1px solid var(--border);flex-wrap:wrap;align-items:center}
@@ -101,11 +103,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
 .tp-status .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .tp-status .dot.idle{background:var(--dim)}.tp-status .dot.run{background:var(--green);animation:pulse 1s infinite}
 .tp-status .dot.err{background:var(--red)}.tp-status .dot.pause{background:var(--orange)}
+.tp-status .dot.warn{background:var(--orange);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .tp-status .msg{color:var(--text);flex:1}.tp-status .line-info{color:var(--dim)}
 
 /* Challenges */
-.chc{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:9px;margin-bottom:5px;cursor:pointer;transition:.15s}
+.chc{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:9px;margin-bottom:5px;transition:.15s}
 .chc:hover{border-color:var(--accent)}.chc.done{border-color:var(--green);opacity:.55}
 .chn{font-weight:600;font-size:11px;color:var(--bright);margin-bottom:2px}
 .chd{font-size:10px;color:var(--dim)}
@@ -145,11 +148,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
     <div class="ic">F</div>
     <div><div class="t">FANUC ER-4iA</div><div class="m">Simulator by Prof. D.Bertolino</div></div>
   </div>
-  <div class="tabs">
-    <div class="tab on" data-t="joints">GIUNTI</div>
-    <div class="tab" data-t="cart">XYZ/IK</div>
-    <div class="tab" data-t="tp">TP PROG</div>
-    <div class="tab" data-t="ch">SFIDE</div>
+  <div class="tabs" role="tablist" aria-label="Sezioni del pannello">
+    <div class="tab on" data-t="joints" role="tab" tabindex="0" aria-selected="true"  aria-controls="t-joints">GIUNTI</div>
+    <div class="tab"    data-t="cart"   role="tab" tabindex="0" aria-selected="false" aria-controls="t-cart">XYZ/IK</div>
+    <div class="tab"    data-t="tp"     role="tab" tabindex="0" aria-selected="false" aria-controls="t-tp">TP PROG</div>
+    <div class="tab"    data-t="ch"     role="tab" tabindex="0" aria-selected="false" aria-controls="t-ch">SFIDE</div>
   </div>
 
   <!-- JOINTS -->
@@ -162,7 +165,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
       <input type="range" id="ovs" min="1" max="100" value="100">
     </div>
     <div class="sec"><div class="st">Vista</div>
-      <div class="br"><button class="b on" id="bg">GRID</button><button class="b on" id="ba">ASSI</button><button class="b" id="bw">WIRE</button><button class="b on" id="bt">TRAIL</button><button class="b" id="be">ENVELOPE</button><button class="b" id="bdh">DH</button></div>
+      <div class="br"><button class="b on" id="bg">GRID</button><button class="b on" id="ba">ASSI</button><button class="b" id="bw">WIRE</button><button class="b on" id="bt">TRAIL</button><button class="b" id="be">ENVELOPE</button><button class="b" id="bdh">TERNE</button></div>
     </div>
   </div>
 
@@ -183,8 +186,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
         <button class="b" id="brd">LEGGI POS</button>
       </div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--dim);margin-top:8px;line-height:1.5">
-        W=180&deg; P=0&deg; R=0&deg; &rarr; tool punta in basso<br>
-        Config: elbow-up / wrist-noflip
+        W=180&deg; P=0&deg; R=0&deg; &rarr; utensile verso il basso<br>
+        W attorno a X, P attorno a Y, R attorno a Z<br>
+        Config: scelta automatica pi&ugrave; vicina alla posa attuale
       </div>
     </div>
     <div class="sec">
@@ -247,7 +251,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
           <span class="line-info" id="tp-line">Ln 0</span>
         </div>
       </div>
-    </div>
     <!-- I/O Panel -->
     <div class="sec">
       <div class="st">I/O Digitali</div>
@@ -274,7 +277,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/three.min.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 // FANUC ER-4iA SIMULATOR v3
@@ -282,6 +285,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--acce
 // ═══════════════════════════════════════════════════════════
 
 const DH={d1:330,a1:50,a2:260,a3:20,d4:290,d6:75};
+
+// ── Parametri cinematici EFFETTIVI ──────────────────────────
+// Ricavati dalla catena di gruppi costruita in buildRobot(): sono l'unica
+// sorgente di verità, usati sia dal modello 3D sia dalla IK, così le due
+// non possono più divergere.
+//   spalla  : offset (a1, d1) dalla base
+//   link 2  : vettore (a3, a2) nel frame J2  -> lunghezza L2, inclinazione PHI2
+//   link 3  : (0, L3) nel frame J3           -> gomito -> centro polso
+//   utensile: D6 dal centro polso (origine J5) al TCP, lungo l'asse utensile
+const KIN={
+  L2  : Math.hypot(DH.a3,DH.a2),      // 260.768
+  PHI2: Math.atan2(DH.a3,DH.a2),      // 4.399°
+  L3  : 70+DH.d4,                     // 360
+  J6O : 28,                           // J5 -> J6
+  TCPO: DH.d6+6,                      // J6 -> TCP
+  get D6(){return this.J6O+this.TCPO} // 109
+};
+
 const LIM=[[-170,170],[-115,120],[-201,201],[-190,190],[-120,120],[-360,360]];
 const COL=['#e74c3c','#27ae60','#3498db','#f39c12','#9b59b6','#1abc9c'];
 const DEG=Math.PI/180, RAD=180/Math.PI;
@@ -292,6 +313,7 @@ let grid,axH,trailPts=[],trailLine,showTrail=true;
 let targetMesh=null,targetPos=null,placingTarget=false;
 let envMesh=null,showEnv=false;
 let dhFrames=[],showDH=false;
+let fkQuiet=false; // sopprime la scia durante le FK di servizio (export, archi)
 
 // I/O state
 const DO_STATE=new Array(8).fill(false);
@@ -300,6 +322,7 @@ const DI_STATE=new Array(8).fill(false);
 const REG=new Array(10).fill(0);
 // Position registers
 const PREG={};
+const PREG_AUTO={};   // punti non insegnati, generati dall'esecutore
 let ptC=1;
 
 // ══════════════════════════
@@ -327,13 +350,7 @@ function init(){
   const tG=new THREE.BufferGeometry();tG.setAttribute('position',new THREE.Float32BufferAttribute([],3));
   trailLine=new THREE.Line(tG,new THREE.LineBasicMaterial({color:0xf5a623,transparent:true,opacity:.45}));scene.add(trailLine);
   buildRobot();orbitCtrl(c);buildUI();setupEvents();
-  window.addEventListener('resize',function(){
-    var vc=document.getElementById('viewport');if(!vc)return;
-    ren.setSize(1,1);
-    requestAnimationFrame(function(){
-      var w2=vc.clientWidth,h2=vc.clientHeight;if(w2>0&&h2>0){cam.aspect=w2/h2;cam.updateProjectionMatrix();ren.setSize(w2,h2)}
-    });
-  });
+  window.addEventListener('resize',handleResize);
   animate();
 }
 
@@ -385,13 +402,13 @@ function buildRobot(){
   const cb2=cyl(5,5,DH.d4-60,MB());cb2.position.set(-14,70+DH.d4/2-15,12);j4.add(cb2);
   const at=cyl(4,4,DH.d4-80,new THREE.MeshStandardMaterial({color:0x2244aa,roughness:.6,metalness:.1}));at.position.set(14,70+DH.d4/2-10,-14);j4.add(at);
   // J5
-  const j5=new THREE.Group();j5.position.set(0,70+DH.d4,0);j4.add(j5);jp.push(j5);
+  const j5=new THREE.Group();j5.position.set(0,KIN.L3,0);j4.add(j5);jp.push(j5);
   const wj=cyl(24,24,55,MD());wj.rotation.x=Math.PI/2;j5.add(wj);
   const wc1=cyl(26,26,4,MY(0xf5c518));wc1.rotation.x=Math.PI/2;wc1.position.z=28;j5.add(wc1);
   const wc2=wc1.clone();wc2.position.z=-28;j5.add(wc2);
   const wb=box(42,38,40,MY(0xf5c518));wb.position.y=8;j5.add(wb);
   // J6
-  const j6=new THREE.Group();j6.position.set(0,28,0);j5.add(j6);jp.push(j6);
+  const j6=new THREE.Group();j6.position.set(0,KIN.J6O,0);j5.add(j6);jp.push(j6);
   const fl=cyl(20,18,DH.d6,MF());fl.position.y=DH.d6/2;j6.add(fl);
   const ff=cyl(21,21,4,MD());ff.position.y=DH.d6+2;j6.add(ff);
   for(let i=0;i<6;i++){const b=cyl(2.5,2.5,5,MB());const a=i/6*Math.PI*2;b.position.set(Math.cos(a)*14,DH.d6+2,Math.sin(a)*14);j6.add(b)}
@@ -414,8 +431,19 @@ function buildRobot(){
   const fPad2=box(34,28,3,new THREE.MeshStandardMaterial({color:0x333333,roughness:.9,metalness:0}));fPad2.position.y=-16;fPad2.position.z=2;fingerR.add(fPad2);
   // Gripper state
   window._gripper={L:fingerL,R:fingerR,open:18,closed:6,current:18,target:18};
-  const tcp=sph(4,new THREE.MeshBasicMaterial({color:0xff2222}));tcp.position.y=DH.d6+6;j6.add(tcp);
+  const tcp=sph(4,new THREE.MeshBasicMaterial({color:0xff2222}));tcp.position.y=KIN.TCPO;j6.add(tcp);
   robotG.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+}
+
+// Ridimensiona il canvas al viewport. Il canvas viene prima azzerato: senza
+// questo il flex non puo' restringersi e la vista resta grande dopo il fullscreen.
+function handleResize(){
+  const vc=document.getElementById('viewport');if(!vc)return;
+  ren.setSize(1,1);
+  requestAnimationFrame(function(){
+    const w=vc.clientWidth,h=vc.clientHeight;
+    if(w>0&&h>0){cam.aspect=w/h;cam.updateProjectionMatrix();ren.setSize(w,h)}
+  });
 }
 
 // ══════════════════════════
@@ -424,133 +452,154 @@ function buildRobot(){
 function updateFK(){
   jp[0].rotation.y=ja[0];jp[1].rotation.z=ja[1];jp[2].rotation.z=ja[2];
   jp[3].rotation.y=ja[3];jp[4].rotation.z=ja[4];jp[5].rotation.y=ja[5];
+  // Three.js ricalcola matrixWorld solo dentro render(): senza questa chiamata
+  // getTCP()/getToolMatrix() leggerebbero la matrice del fotogramma precedente
+  // e il pannello TCP resterebbe indietro di un passo di animazione.
+  jp[5].updateWorldMatrix(true,false);
   updateDisp();
 }
 
-function getTCP(){const v=new THREE.Vector3(0,DH.d6+6,0);jp[5].localToWorld(v);return v}
-function getWristCenter(){const v=new THREE.Vector3(0,0,0);jp[5].localToWorld(v);return v}
-
-// Get full FK rotation matrix of flange
-function getFlangeMatrix(){
-  jp[5].updateWorldMatrix(true,false);
-  return jp[5].matrixWorld.clone();
-}
+function getTCP(){const v=new THREE.Vector3(0,KIN.TCPO,0);jp[5].localToWorld(v);return v}
 
 function updateDisp(){
-  const p=getTCP();
-  document.getElementById('px').textContent=p.x.toFixed(1)+' mm';
-  document.getElementById('py').textContent=p.z.toFixed(1)+' mm';
-  document.getElementById('pz').textContent=p.y.toFixed(1)+' mm';
-  // WPR from flange matrix
-  const m=getFlangeMatrix();
-  const el=m.elements;
-  // Extract ZYX Euler (FANUC convention W,P,R)
-  const sy=Math.sqrt(el[0]*el[0]+el[4]*el[4]);
-  let w,pp,r;
-  if(sy>1e-6){w=Math.atan2(el[4],el[0]);pp=Math.atan2(-el[8],sy);r=Math.atan2(el[9],el[10])}
-  else{w=Math.atan2(-el[1],el[5]);pp=Math.atan2(-el[8],sy);r=0}
-  document.getElementById('pw').textContent=(w*RAD).toFixed(1)+'\u00B0';
-  document.getElementById('pp').textContent=(pp*RAD).toFixed(1)+'\u00B0';
-  document.getElementById('pr').textContent=(r*RAD).toFixed(1)+'\u00B0';
+  const p=sceneToRobot(getTCP());
+  document.getElementById('px').textContent=p[0].toFixed(1)+' mm';
+  document.getElementById('py').textContent=p[1].toFixed(1)+' mm';
+  document.getElementById('pz').textContent=p[2].toFixed(1)+' mm';
+  const wpr=matrixToWpr(getToolMatrix());
+  document.getElementById('pw').textContent=wpr[0].toFixed(1)+'\u00B0';
+  document.getElementById('pp').textContent=wpr[1].toFixed(1)+'\u00B0';
+  document.getElementById('pr').textContent=wpr[2].toFixed(1)+'\u00B0';
   // Trail
-  if(showTrail){trailPts.push(p.x,p.y,p.z);if(trailPts.length>6000)trailPts.splice(0,3);
+  if(showTrail&&!fkQuiet){const t=getTCP();trailPts.push(t.x,t.y,t.z);if(trailPts.length>6000)trailPts.splice(0,3);
     trailLine.geometry.setAttribute('position',new THREE.Float32BufferAttribute(trailPts,3));trailLine.geometry.attributes.position.needsUpdate=true}
 }
 
 // ══════════════════════════════════════
-// IK — FULL 6-DOF ANALYTICAL
+// FRAME SCENA  <->  FRAME ROBOT
 // ══════════════════════════════════════
-function wprToMatrix(w,p,r){
-  // FANUC WPR: rotate around Z(W), Y(P), X(R)
+// La scena Three.js e' Y-up (x destra, y alto, z avanti).
+// Il frame mondo del robot e' Z-up e destrorso, come su un FANUC reale:
+//     X_r = x_s      Y_r = -z_s      Z_r = y_s
+// che equivale a una rotazione C = Rx(+90 deg). Il segno su Y e' necessario:
+// con Y_r = +z_s il frame sarebbe SINISTRORSO e J1 girerebbe al contrario.
+// L'utensile ha Z uscente dalla flangia; nella mesh quell'asse e' la Y locale
+// di J6, quindi vale la stessa C: R_utensile = C * R_flangia * C^T.
+const C_SR=[[1,0,0],[0,0,-1],[0,1,0]];
+
+function sceneToRobot(v){return [v.x,-v.z,v.y]}
+
+function mul3(A,B){const M=[[0,0,0],[0,0,0],[0,0,0]];
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++){let s=0;for(let k=0;k<3;k++)s+=A[i][k]*B[k][j];M[i][j]=s}return M}
+function transp3(A){return [[A[0][0],A[1][0],A[2][0]],[A[0][1],A[1][1],A[2][1]],[A[0][2],A[1][2],A[2][2]]]}
+
+// Orientamento dell'utensile nel frame robot, ricavato dalla FK.
+function getToolMatrix(){
+  jp[5].updateWorldMatrix(true,false);
+  const e=jp[5].matrixWorld.elements; // Three.js e' COLUMN-major: e[c*4+r] = R[r][c]
+  const Rs=[[e[0],e[4],e[8]],[e[1],e[5],e[9]],[e[2],e[6],e[10]]];
+  return mul3(mul3(C_SR,Rs),transp3(C_SR));
+}
+
+// ══════════════════════════════════════
+// ORIENTAMENTO FANUC W-P-R
+// ══════════════════════════════════════
+// Convenzione FANUC: W ruota attorno a X, P attorno a Y, R attorno a Z,
+// composte come R = Rz(R) * Ry(P) * Rx(W).
+// Con W=180 P=0 R=0 si ottiene approach = (0,0,-1): utensile verso il basso.
+function wprToMatrix(wDeg,pDeg,rDeg){
+  const w=wDeg*DEG,p=pDeg*DEG,r=rDeg*DEG;
   const cw=Math.cos(w),sw=Math.sin(w),cp=Math.cos(p),sp=Math.sin(p),cr=Math.cos(r),sr=Math.sin(r);
-  // R = Rz(W) * Ry(P) * Rx(R)
   return [
-    [cw*cp, cw*sp*sr-sw*cr, cw*sp*cr+sw*sr],
-    [sw*cp, sw*sp*sr+cw*cr, sw*sp*cr-cw*sr],
-    [-sp,   cp*sr,          cp*cr          ]
+    [cr*cp, cr*sp*sw-sr*cw, cr*sp*cw+sr*sw],
+    [sr*cp, sr*sp*sw+cr*cw, sr*sp*cw-cr*sw],
+    [-sp,   cp*sw,          cp*cw          ]
   ];
 }
 
+function matrixToWpr(R){
+  const cb=Math.hypot(R[0][0],R[1][0]);
+  let w,p,r;
+  p=Math.atan2(-R[2][0],cb);
+  if(cb>1e-6){r=Math.atan2(R[1][0],R[0][0]);w=Math.atan2(R[2][1],R[2][2])}
+  else{r=0;w=Math.atan2(-R[1][2],R[1][1])}
+  // -180.0 e +180.0 sono lo stesso angolo: si preferisce il positivo
+  const norm=a=>{const d=a*RAD;return Math.abs(d+180)<1e-9?180:d};
+  return [norm(w),norm(p),norm(r)];
+}
+
+// ══════════════════════════════════════
+// IK — 6-DOF ANALITICA
+// ══════════════════════════════════════
+// Struttura risolta (identica alla catena di gruppi del modello 3D):
+//   base -> Rz(J1) -> (a1,d1) -> Ry(-J2) -> link2 (L2,PHI2)
+//        -> Ry(-J3) -> link3 (L3) -> polso sferico Rz(J4)Ry(-J5)Rz(J6) -> D6 -> TCP
+// I tre assi del polso si intersecano nell'origine del gruppo J5: e' li' il
+// centro polso, a D6 dal TCP lungo l'asse utensile.
+// Enumera fino a 8 soluzioni (spalla x gomito x polso) e sceglie quella
+// ammessa dai finecorsa piu' vicina alla posa attuale, come un controllore reale.
+function wrapPi(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a}
+
 function solveIK6(tx,ty,tz,wDeg,pDeg,rDeg){
-  // tx,ty,tz: target TCP in scene frame → convert to robot frame
-  // Scene: x→right, y→up, z→forward. Robot frame matches scene here.
-  // We'll work in a frame where the robot base is at origin
-  const {d1,a1,a2,a3,d4,d6}=DH;
-  const W=wDeg*DEG, P=pDeg*DEG, R=rDeg*DEG;
-  const Rd=wprToMatrix(W,P,R);
+  const Rd=wprToMatrix(wDeg,pDeg,rDeg);
+  // Centro polso = TCP - D6 * approach (terza colonna di Rd)
+  const wx=tx-KIN.D6*Rd[0][2], wy=ty-KIN.D6*Rd[1][2], wz=tz-KIN.D6*Rd[2][2];
+  const base=Math.atan2(wy,wx), rad=Math.hypot(wx,wy), s=wz-DH.d1;
+  const cands=[];
 
-  // Approach vector (last column of rotation matrix = z-axis of tool)
-  const ax=Rd[0][2], ay=Rd[1][2], az=Rd[2][2];
-
-  // Wrist center = TCP - d6 * approach
-  const wx=tx-d6*ax, wy=ty-d6*ay, wz=tz-d6*az;
-
-  // ── J1 ──
-  const j1=Math.atan2(wy, wx);
-
-  // ── J2, J3 via geometry ──
-  const r=Math.sqrt(wx*wx+wy*wy)-a1;
-  const s=wz-d1;
-  const D2=r*r+s*s;
-  const D=Math.sqrt(D2);
-
-  const L2=a2;
-  const L3=Math.sqrt(a3*a3+d4*d4);
-  const phi3=Math.atan2(d4,a3);
-
-  if(D>L2+L3||D<Math.abs(L2-L3)) return null;
-
-  const cosB=(D2-L2*L2-L3*L3)/(2*L2*L3);
-  const cosBC=Math.max(-1,Math.min(1,cosB));
-  const beta=Math.acos(cosBC); // elbow angle
-
-  // Elbow-up solution
-  const j3_internal=-(Math.PI-beta);
-  const j3=j3_internal+phi3;
-
-  const alpha=Math.atan2(s,r);
-  const gamma=Math.atan2(L3*Math.sin(beta),L2+L3*Math.cos(beta));
-  const j2=-(alpha+gamma-Math.PI/2);
-
-  // ── Wrist orientation: J4, J5, J6 ──
-  // Compute R0_3 from j1,j2,j3 then R3_6 = R0_3^T * Rd
-  const c1=Math.cos(j1),s1=Math.sin(j1);
-  const c2=Math.cos(-j2),s2=Math.sin(-j2);  // FANUC j2 convention
-  const c23=Math.cos(-j2+j3),s23=Math.sin(-j2+j3);
-
-  // R0_3 for this robot structure (standard 6R)
-  const R03=[
-    [c1*c23, -c1*s23, s1],
-    [s1*c23, -s1*s23, -c1],
-    [s23,    c23,     0]
-  ];
-
-  // R3_6 = R03^T * Rd
-  const R36=[[0,0,0],[0,0,0],[0,0,0]];
-  for(let i=0;i<3;i++)for(let j=0;j<3;j++){R36[i][j]=0;for(let k=0;k<3;k++)R36[i][j]+=R03[k][i]*Rd[k][j]}
-
-  // Extract J5 (pitch), J4 (roll), J6 (roll) from R36
-  // R36 = Ry(j4)*Rz(j5)*Ry(j6) for spherical wrist
-  let j4,j5,j6;
-  if(Math.abs(R36[2][2])>0.9999){
-    // Singular: j5 ≈ 0 or π
-    j5=R36[2][2]>0?0:Math.PI;
-    j4=0;
-    j6=Math.atan2(R36[0][1],R36[0][0]);
-  } else {
-    j5=Math.atan2(Math.sqrt(R36[2][0]*R36[2][0]+R36[2][1]*R36[2][1]),R36[2][2]);
-    j4=Math.atan2(R36[1][2],R36[0][2]);
-    j6=Math.atan2(R36[2][1],-R36[2][0]);
+  for(const sh of [[base,1],[wrapPi(base+Math.PI),-1]]){
+    const j1=sh[0], r=sh[1]*rad-DH.a1;
+    const D2=r*r+s*s, D=Math.sqrt(D2);
+    if(D>KIN.L2+KIN.L3||D<Math.abs(KIN.L2-KIN.L3))continue;
+    const cd=Math.max(-1,Math.min(1,(D2-KIN.L2*KIN.L2-KIN.L3*KIN.L3)/(2*KIN.L2*KIN.L3)));
+    const ac=Math.acos(cd);
+    for(const delta of [-ac,ac]){          // gomito alto / gomito basso
+      const j3=delta-KIN.PHI2;
+      const j2=wrapPi(Math.atan2(s,r)-Math.atan2(KIN.L3*Math.sin(delta),KIN.L2+KIN.L3*Math.cos(delta))-Math.PI/2+KIN.PHI2);
+      // Orientamento del braccio: R03 = Rz(J1) * Ry(-(J2+J3))
+      const c1=Math.cos(j1),s1=Math.sin(j1),c23=Math.cos(j2+j3),s23=Math.sin(j2+j3);
+      const R03=[[c1*c23,-s1,-c1*s23],[s1*c23,c1,-s1*s23],[s23,0,c23]];
+      // Polso: M = R03^T * Rd = Rz(J4) * Ry(-J5) * Rz(J6)  (ZYZ)
+      const M=mul3(transp3(R03),Rd);
+      const sb=Math.hypot(M[0][2],M[1][2]);
+      let wrists;
+      if(sb<1e-6){
+        // Singolarita' di polso (J5 = 0 o 180): solo J4+J6 e' determinato.
+        // Si tiene J4 dov'e' e si scarica tutto su J6, come fa il controllore.
+        const j4=ja[3];
+        wrists=M[2][2]>0
+          ? [[j4,0,wrapPi(Math.atan2(M[1][0],M[0][0])-j4)]]
+          : [[j4,Math.PI,wrapPi(Math.atan2(-M[1][0],-M[0][0])+j4)]];
+      } else {
+        const b=Math.atan2(sb,M[2][2]);
+        const j4=Math.atan2(M[1][2],M[0][2]), j6=Math.atan2(M[2][1],-M[2][0]);
+        wrists=[[j4,-b,j6],[wrapPi(j4+Math.PI),b,wrapPi(j6+Math.PI)]];
+      }
+      for(const w of wrists)cands.push([j1,j2,j3,w[0],w[1],w[2]].map(v=>v*RAD));
+    }
   }
 
-  const sol=[j1,j2,j3,j4,j5,j6];
-
-  // Check limits
-  for(let i=0;i<6;i++){
-    const d=sol[i]*RAD;
-    if(d<LIM[i][0]-1||d>LIM[i][1]+1) return null;
+  // Filtro finecorsa (con eventuale giro completo per gli assi a corsa estesa)
+  const valid=[];
+  for(const c of cands){
+    const sol=c.slice();let ok=true;
+    for(let i=0;i<6;i++){
+      let placed=false;
+      for(const k of [0,360,-360]){const v=sol[i]+k;if(v>=LIM[i][0]-1e-6&&v<=LIM[i][1]+1e-6){sol[i]=v;placed=true;break}}
+      if(!placed){ok=false;break}
+    }
+    if(ok)valid.push(sol);
   }
-  return sol;
+  if(!valid.length)return null;
+
+  // Soluzione con il minimo spostamento angolare rispetto alla posa corrente
+  const cur=ja.map(v=>v*RAD);
+  let best=valid[0],bestCost=Infinity;
+  for(const sol of valid){
+    let cost=0;for(let i=0;i<6;i++)cost+=Math.abs(((sol[i]-cur[i]+540)%360)-180);
+    if(cost<bestCost){bestCost=cost;best=sol}
+  }
+  return best; // gradi
 }
 
 function applyIK(){
@@ -560,23 +609,23 @@ function applyIK(){
   const w=parseFloat(document.getElementById('iw').value)||0;
   const p=parseFloat(document.getElementById('ip').value)||0;
   const r=parseFloat(document.getElementById('ir').value)||0;
-  // Scene mapping: input X → scene X, input Y → scene Z, input Z → scene Y
   const sol=solveIK6(tx,ty,tz,w,p,r);
   if(sol){
-    animTo(sol.map(v=>v*RAD),1200);
+    animTo(sol,1200);
     setSt('ok','IK: SOLUZIONE TROVATA');
   } else setSt('err','IK: FUORI PORTATA / LIMITI');
 }
 
 function readPos(){
-  const p=getTCP();
-  document.getElementById('ix').value=p.x.toFixed(0);
-  document.getElementById('iy').value=p.z.toFixed(0);
-  document.getElementById('iz').value=p.y.toFixed(0);
-  // Read WPR from display
-  document.getElementById('iw').value=document.getElementById('pw').textContent.replace('\u00B0','').trim();
-  document.getElementById('ip').value=document.getElementById('pp').textContent.replace('\u00B0','').trim();
-  document.getElementById('ir').value=document.getElementById('pr').textContent.replace('\u00B0','').trim();
+  const p=sceneToRobot(getTCP());
+  // un decimale: con toFixed(0) LEGGI POS perdeva fino a mezzo millimetro
+  document.getElementById('ix').value=p[0].toFixed(1);
+  document.getElementById('iy').value=p[1].toFixed(1);
+  document.getElementById('iz').value=p[2].toFixed(1);
+  const wpr=matrixToWpr(getToolMatrix());
+  document.getElementById('iw').value=wpr[0].toFixed(1);
+  document.getElementById('ip').value=wpr[1].toFixed(1);
+  document.getElementById('ir').value=wpr[2].toFixed(1);
 }
 
 function setSt(c,t){const e=document.getElementById('ikst');e.className=c;e.textContent=t}
@@ -590,7 +639,7 @@ function buildUI(){
   const nm=['J1 Base','J2 Spalla','J3 Gomito','J4 Roll','J5 Pitch','J6 Flangia'];
   nm.forEach((n,i)=>{
     const[mn,mx]=LIM[i];const d=document.createElement('div');d.className='jc';
-    d.innerHTML=`<div class="jl"><span class="jn" style="color:${COL[i]}">${n}</span><span class="jv" id="jv${i}">0.0\u00B0</span></div><input type="range" id="js${i}" min="${mn}" max="${mx}" value="0" step="0.5"><div class="jr"><span>${mn}\u00B0</span><span>${mx}\u00B0</span></div>`;
+    d.innerHTML=`<div class="jl"><span class="jn" style="color:${COL[i]}">${n}</span><span class="jv" id="jv${i}">0.0\u00B0</span></div><input type="range" id="js${i}" min="${mn}" max="${mx}" value="0" step="0.5" aria-label="${n}, da ${mn} a ${mx} gradi"><div class="jr"><span>${mn}\u00B0</span><span>${mx}\u00B0</span></div>`;
     c.appendChild(d);
     d.querySelector('input').addEventListener('input',e=>{
       ja[i]=parseFloat(e.target.value)*DEG;document.getElementById('jv'+i).textContent=parseFloat(e.target.value).toFixed(1)+'\u00B0';updateFK();checkCh()});
@@ -599,24 +648,27 @@ function buildUI(){
   const gd=document.createElement('div');gd.className='jc';
   gd.innerHTML='<div class="jl"><span class="jn" style="color:#e74c3c">\u270B Pinza</span><span class="jv" id="grip-st">APERTA</span></div><button id="grip-btn" style="width:100%;padding:6px 0;margin-top:4px;border-radius:5px;border:1px solid var(--border);background:var(--bg);color:var(--green);font-family:\'JetBrains Mono\',monospace;font-size:11px;cursor:pointer;transition:.15s;letter-spacing:1px">CHIUDI PINZA</button>';
   c.appendChild(gd);
-  document.getElementById('grip-btn').addEventListener('click',function(){
-    DO_STATE[0]=!DO_STATE[0];
-    var e=document.getElementById('do1');if(e)e.className='io-cell '+(DO_STATE[0]?'on':'off');
-    if(window._gripper)window._gripper.target=DO_STATE[0]?window._gripper.closed:window._gripper.open;
-    this.textContent=DO_STATE[0]?'APRI PINZA':'CHIUDI PINZA';
-    this.style.color=DO_STATE[0]?'var(--red)':'var(--green)';
-    document.getElementById('grip-st').textContent=DO_STATE[0]?'CHIUSA':'APERTA';
-    document.getElementById('grip-st').style.color=DO_STATE[0]?'var(--red)':'var(--green)';
-  });
+  document.getElementById('grip-btn').addEventListener('click',()=>setDO(1,!DO_STATE[0]));
   // Tabs
-  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));
-    t.classList.add('on');document.getElementById('t-'+t.dataset.t).classList.add('on');
+  const selectTab=t=>{
+    document.querySelectorAll('.tab').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-selected','false')});
+    document.querySelectorAll('.tc').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');t.setAttribute('aria-selected','true');
+    document.getElementById('t-'+t.dataset.t).classList.add('on');
     document.getElementById('mbadge').textContent=t.dataset.t==='cart'?'CARTESIAN':t.dataset.t==='joints'?'JOINT':t.dataset.t==='tp'?'TP PROGRAM':'SFIDE';
-  }));
+  };
+  const tabs=[...document.querySelectorAll('.tab')];
+  tabs.forEach((t,i)=>{
+    t.addEventListener('click',()=>selectTab(t));
+    t.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();selectTab(t);return}
+      const d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+      if(d){e.preventDefault();const n=tabs[(i+d+tabs.length)%tabs.length];selectTab(n);n.focus()}
+    });
+  });
   // I/O
   buildIO();buildRegs();buildChallenges();updateGutter();
-  document.getElementById('tp-area').addEventListener('input',updateGutter);
+  document.getElementById('tp-area').addEventListener('input',()=>{pLines=[];updateGutter()});
   document.getElementById('tp-area').addEventListener('scroll',function(){document.getElementById('gutter').scrollTop=this.scrollTop});
 }
 
@@ -628,31 +680,44 @@ function setJD(angles){
 function buildIO(){
   const doC=document.getElementById('io-do'),diC=document.getElementById('io-di');
   for(let i=1;i<=8;i++){
-    const d=document.createElement('div');d.className='io-cell off';d.id='do'+i;d.textContent='DO['+i+']';
-    d.addEventListener('click',()=>{DO_STATE[i-1]=!DO_STATE[i-1];d.className='io-cell '+(DO_STATE[i-1]?'on':'off');
-      if(i===1){
-        if(window._gripper)window._gripper.target=DO_STATE[0]?window._gripper.closed:window._gripper.open;
-        var btn=document.getElementById('grip-btn'),st=document.getElementById('grip-st');
-        if(btn){btn.textContent=DO_STATE[0]?'APRI PINZA':'CHIUDI PINZA';btn.style.color=DO_STATE[0]?'var(--red)':'var(--green)'}
-        if(st){st.textContent=DO_STATE[0]?'CHIUSA':'APERTA';st.style.color=DO_STATE[0]?'var(--red)':'var(--green)'}
-      }
-    });doC.appendChild(d);
-    const di=document.createElement('div');di.className='io-cell off';di.id='di'+i;di.textContent='DI['+i+']';
-    di.addEventListener('click',()=>{DI_STATE[i-1]=!DI_STATE[i-1];di.className='io-cell '+(DI_STATE[i-1]?'on':'off')});diC.appendChild(di);
+    doC.appendChild(ioCell('do',i,'Uscita digitale '+i,()=>setDO(i,!DO_STATE[i-1])));
+    diC.appendChild(ioCell('di',i,'Ingresso digitale '+i,()=>setDI(i,!DI_STATE[i-1])));
   }
 }
+// Cella I/O commutabile, raggiungibile e azionabile da tastiera.
+function ioCell(kind,i,label,toggle){
+  const d=document.createElement('div');
+  d.className='io-cell off';d.id=kind+i;d.textContent=kind.toUpperCase()+'['+i+']';
+  d.setAttribute('role','switch');d.setAttribute('tabindex','0');
+  d.setAttribute('aria-label',label);d.setAttribute('aria-checked','false');
+  const act=()=>{toggle();d.setAttribute('aria-checked',d.classList.contains('on')?'true':'false')};
+  d.addEventListener('click',act);
+  d.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}});
+  return d;
+}
+
 function buildRegs(){
   const c=document.getElementById('regs');
   for(let i=1;i<=10;i++){const d=document.createElement('div');d.className='reg-cell';d.innerHTML=`<span class="rn">R[${i}]</span><span class="rv" id="rv${i}">0</span>`;c.appendChild(d)}
 }
-function updateRegDisp(){for(let i=1;i<=10;i++)document.getElementById('rv'+i).textContent=REG[i-1]}
-function setDO(n,v){DO_STATE[n-1]=v;const e=document.getElementById('do'+n);if(e)e.className='io-cell '+(v?'on':'off');
+function updateRegDisp(){for(let i=1;i<=10;i++)document.getElementById('rv'+i).textContent=REG[i-1];checkCh()}
+// Unico punto di ingresso per le uscite digitali: stato, cella I/O, pinza
+// (DO[1] la comanda) e rivalutazione delle sfide.
+function setDO(n,v){
+  DO_STATE[n-1]=v;
+  const e=document.getElementById('do'+n);if(e)e.className='io-cell '+(v?'on':'off');
   if(n===1){
     if(window._gripper)window._gripper.target=v?window._gripper.closed:window._gripper.open;
-    var btn=document.getElementById('grip-btn'),st=document.getElementById('grip-st');
+    const btn=document.getElementById('grip-btn'),st=document.getElementById('grip-st');
     if(btn){btn.textContent=v?'APRI PINZA':'CHIUDI PINZA';btn.style.color=v?'var(--red)':'var(--green)'}
     if(st){st.textContent=v?'CHIUSA':'APERTA';st.style.color=v?'var(--red)':'var(--green)'}
   }
+  checkCh();
+}
+function setDI(n,v){
+  DI_STATE[n-1]=v;
+  const e=document.getElementById('di'+n);if(e)e.className='io-cell '+(v?'on':'off');
+  checkCh();
 }
 
 // ── Gutter (line numbers) ──
@@ -681,16 +746,6 @@ function setupEvents(){
       this.innerHTML='&#x26F6;';
     }
   };
-  function handleResize(){
-    var vc=document.getElementById('viewport');if(!vc)return;
-    // Force canvas to shrink so flex can recalculate
-    ren.setSize(1,1);
-    // Let the browser reflow
-    requestAnimationFrame(function(){
-      var w=vc.clientWidth,h=vc.clientHeight;
-      if(w>0&&h>0){cam.aspect=w/h;cam.updateProjectionMatrix();ren.setSize(w,h)}
-    });
-  }
   function onFSChange(){
     document.getElementById('bfs').innerHTML=(document.fullscreenElement||document.webkitFullscreenElement)?'&#x2716;':'&#x26F6;';
     // Multiple resize attempts to catch async reflow
@@ -722,8 +777,8 @@ function setupEvents(){
   // Target
   document.getElementById('bpt').onclick=()=>{placingTarget=true;ren.domElement.style.cursor='crosshair'};
   document.getElementById('bgt').onclick=()=>{
-    if(!targetPos)return;const sol=solveIK6(targetPos.x,targetPos.z,targetPos.y,180,0,0);
-    if(sol){animTo(sol.map(v=>v*RAD),1500);setSt('ok','IK: TARGET')}else setSt('err','IK: IRRAGGIUNGIBILE')};
+    if(!targetPos)return;const t=sceneToRobot(targetPos);const sol=solveIK6(t[0],t[1],t[2],180,0,0);
+    if(sol){animTo(sol,1500);setSt('ok','IK: TARGET')}else setSt('err','IK: IRRAGGIUNGIBILE')};
   document.getElementById('bct').onclick=()=>{if(targetMesh){scene.remove(targetMesh);targetMesh=null;targetPos=null}document.getElementById('tinfo').style.display='none'};
 
   const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
@@ -738,13 +793,12 @@ function setupEvents(){
       const ring=new THREE.Mesh(new THREE.TorusGeometry(18,2,8,32),new THREE.MeshBasicMaterial({color:0x2ecc71,transparent:true,opacity:.4}));ring.rotation.x=Math.PI/2;g.add(ring);
       g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,-pt.y,0),new THREE.Vector3()]),new THREE.LineBasicMaterial({color:0x2ecc71,transparent:true,opacity:.3})));
       g.position.copy(pt);scene.add(g);targetMesh=g;targetPos=pt.clone();
-      document.getElementById('tinfo').style.display='block';document.getElementById('tinfo').textContent=`TARGET: X=${pt.x.toFixed(0)} Y=${pt.z.toFixed(0)} Z=${pt.y.toFixed(0)}`}
+      document.getElementById('tinfo').style.display='block';const tr=sceneToRobot(pt);document.getElementById('tinfo').textContent=`TARGET: X=${tr[0].toFixed(0)} Y=${tr[1].toFixed(0)} Z=${tr[2].toFixed(0)}`}
   });
 
   // TP buttons
   document.getElementById('b-teach').onclick=()=>teachPt('J');
   document.getElementById('b-teachl').onclick=()=>teachPt('L');
-  document.getElementById('b-teachc').onclick=()=>teachCirc();
   document.getElementById('b-teachc').onclick=()=>teachCirc();
   document.getElementById('b-run').onclick=runProg;
   document.getElementById('b-stop').onclick=stopProg;
@@ -752,7 +806,7 @@ function setupEvents(){
   document.getElementById('b-pause').onclick=pauseProg;
   // Insert buttons
   document.getElementById('b-ins-if').onclick=()=>insertTP('IF R[1]>=0, JMP LBL[1]');
-  document.getElementById('b-ins-for').onclick=()=>insertTP('FOR R[1]=1 TO 5');
+  document.getElementById('b-ins-for').onclick=()=>insertTP('FOR R[1]=1 TO 5\nENDFOR');
   document.getElementById('b-ins-lbl').onclick=()=>insertTP('LBL[1]');
   document.getElementById('b-ins-call').onclick=()=>insertTP('CALL SUBPROG');
   document.getElementById('b-ins-do').onclick=()=>insertTP('DO[1]=ON');
@@ -765,12 +819,13 @@ function setupEvents(){
   document.getElementById('b-examples').onclick=showExamples;
 }
 
+// Inserisce all'inizio della riga del cursore e rinumera l'intero programma.
 function insertTP(txt){
   const ta=document.getElementById('tp-area');
-  const pos=ta.selectionStart;const val=ta.value;
-  const before=val.substring(0,pos);const after=val.substring(pos);
-  const lineNum=before.split('\n').length;
-  ta.value=before+lineNum+': '+txt+'\n'+after;ta.focus();updateGutter();
+  const val=ta.value,pos=ta.selectionStart;
+  const bol=val.lastIndexOf('\n',pos-1)+1;
+  ta.value=val.slice(0,bol)+txt+'\n'+val.slice(bol);
+  ta.focus();renumberTP();
 }
 
 function renumberTP(){
@@ -782,7 +837,7 @@ function renumberTP(){
     const noNum=trimmed.replace(/^\d+:\s*/,'');
     return(n++)+': '+noNum;
   }).join('\n');
-  updateGutter();
+  pLines=[];updateGutter();
 }
 
 // ── Export .LS ──
@@ -826,16 +881,16 @@ function exportLS(){
     const m=pn.match(/P\[(\d+)\]/);if(!m)return;
     const idx=m[1];const angles=PREG[pn];
     // Get TCP for this position
-    const save=ja.slice();
+    const save=ja.slice();fkQuiet=true;
     angles.forEach((d,i)=>{ja[i]=d*DEG});updateFK();
-    const tcp=getTCP();
-    const px=tcp.x.toFixed(3),py=tcp.z.toFixed(3),pz=tcp.y.toFixed(3);
-    ja=save.map((v,i)=>v);updateFK();
+    const pr=sceneToRobot(getTCP()),wpr=matrixToWpr(getToolMatrix());
+    const px=pr[0].toFixed(3),py=pr[1].toFixed(3),pz=pr[2].toFixed(3);
+    ja=save;updateFK();fkQuiet=false;
     ls+='P['+idx+']{\n';
     ls+='   GP1:\n';
     ls+='\tUF : 0, UT : 1,\tCONFIG : \'N U T, 0, 0, 0\',\n';
     ls+='\tX =  '+px+'  mm,\tY =  '+py+'  mm,\tZ =  '+pz+'  mm,\n';
-    ls+='\tW =  180.000 deg,\tP =    0.000 deg,\tR =    0.000 deg\n';
+    ls+='\tW =  '+wpr[0].toFixed(3)+' deg,\tP =  '+wpr[1].toFixed(3)+' deg,\tR =  '+wpr[2].toFixed(3)+' deg\n';
     ls+='};\n';
   });
   ls+='/END\n';
@@ -865,26 +920,26 @@ function importLS(file){
     lines.forEach(l=>prog+=l+'\n');
     prog+='/END';
     document.getElementById('tp-area').value=prog;
-    updateGutter();
+    pLines=[];updateGutter();
     // Extract /POS section
     const posMatch=txt.match(/\/POS\s*\n([\s\S]*?)\/END/);
     if(posMatch){
       const posBlock=posMatch[1];
-      const posRe=/P\[(\d+)\]\{[\s\S]*?X\s*=\s*([\d.-]+).*?Y\s*=\s*([\d.-]+).*?Z\s*=\s*([\d.-]+)/g;
-      let pm;
+      const posRe=/P\[(\d+)\]\{[\s\S]*?X\s*=\s*(-?[\d.]+)[\s\S]*?Y\s*=\s*(-?[\d.]+)[\s\S]*?Z\s*=\s*(-?[\d.]+)(?:[\s\S]*?W\s*=\s*(-?[\d.]+)[\s\S]*?P\s*=\s*(-?[\d.]+)[\s\S]*?R\s*=\s*(-?[\d.]+))?/g;
+      let pm,nOk=0,nBad=0;
       while((pm=posRe.exec(posBlock))!==null){
         const idx=parseInt(pm[1]);
         const x=parseFloat(pm[2]),y=parseFloat(pm[3]),z=parseFloat(pm[4]);
-        // Use IK to get joint angles for this position
-        const sol=solveIK6(x,y,z,180,0,0);
-        if(sol){PREG[`P[${idx}]`]=sol.map(v=>v*RAD);if(idx>=ptC)ptC=idx+1}
+        // Orientamento dal file se presente, altrimenti utensile verso il basso
+        const w=pm[5]!==undefined?parseFloat(pm[5]):180;
+        const pp=pm[6]!==undefined?parseFloat(pm[6]):0;
+        const rr=pm[7]!==undefined?parseFloat(pm[7]):0;
+        const sol=solveIK6(x,y,z,w,pp,rr);
+        if(sol){PREG[`P[${idx}]`]=sol;delete PREG_AUTO[`P[${idx}]`];if(idx>=ptC)ptC=idx+1;nOk++}
+        else nBad++;
       }
-      // Update points display
-      const l=document.getElementById('pts');l.innerHTML='';
-      Object.keys(PREG).sort((a,b)=>{return parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0])}).forEach(pn=>{
-        const a=PREG[pn].map(v=>v.toFixed(1)+'\u00B0').join(', ');
-        l.innerHTML+=`<div style="margin-bottom:3px"><span style="color:var(--accent)">${pn}</span>: ${a}</div>`;
-      });
+      refreshPoints();
+      if(nBad)setTimeout(()=>setTPStatus('warn',`${nBad} punt${nBad>1?'i':'o'} non raggiungibil${nBad>1?'i':'e'}: scartat${nBad>1?'i':'o'}`),2600);
     }
     setTPStatus('run','Importato '+name+' ('+lines.length+' righe)');
     setTimeout(()=>setTPStatus('idle','PRONTO'),2500);
@@ -1042,18 +1097,33 @@ function showExamples(){
   document.body.appendChild(m);
 }
 
-function teachPt(type){
-  const n=`P[${ptC}]`;PREG[n]=ja.map(v=>v*RAD);ptC++;
-  const l=document.getElementById('pts');if(ptC===2)l.innerHTML='';
-  const a=PREG[n].map(v=>v.toFixed(1)+'\u00B0').join(', ');
-  l.innerHTML+=`<div style="margin-bottom:3px"><span style="color:var(--accent)">${n}</span>: ${a}</div>`;
+// Ridisegna l'elenco dei punti registrati (unica implementazione).
+function refreshPoints(){
+  const l=document.getElementById('pts');
+  const names=Object.keys(PREG).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
+  if(!names.length){l.textContent='Nessun punto';return}
+  l.innerHTML=names.map(pn=>{
+    const a=PREG[pn].map(v=>v.toFixed(1)+'\u00B0').join(', ');
+    const auto=PREG_AUTO[pn]?' <span style="color:var(--orange)">(auto)</span>':'';
+    return `<div style="margin-bottom:3px"><span style="color:var(--accent)">${pn}</span>${auto}: ${a}</div>`;
+  }).join('');
+}
+
+// Inserisce un'istruzione prima di /END (o in coda se /END manca) e rinumera:
+// contare le righe per dedurre il numero le includeva tutte, /PROG e /END
+// compresi, sfasando la numerazione di due unita'.
+function appendTP(ins){
   const ta=document.getElementById('tp-area');
-  const lines=ta.value.split('\n').filter(l=>l.trim());
-  const lineNum=lines.length;
+  if(/^\s*\/END\s*$/m.test(ta.value))ta.value=ta.value.replace(/^\s*\/END\s*$/m,ins+'\n/END');
+  else ta.value=ta.value.replace(/\n*$/,'\n')+ins+'\n';
+  renumberTP();
+}
+
+function teachPt(type){
+  const n=`P[${ptC}]`;PREG[n]=ja.map(v=>v*RAD);delete PREG_AUTO[n];ptC++;
+  refreshPoints();
   const speed=type==='J'?'100%':'250mm/sec';
-  const ins=`${lineNum}: ${type} ${n} ${speed} FINE`;
-  ta.value=ta.value.replace('/END',ins+'\n/END');
-  updateGutter();
+  appendTP(`${type} ${n} ${speed} FINE`);
   setTPStatus('run',`${n} registrato (${type})`);
   setTimeout(()=>setTPStatus('idle','PRONTO'),1500);
 }
@@ -1061,20 +1131,13 @@ function teachPt(type){
 // Circular: registra 2 punti (via + dest) e inserisce C P[via] P[dest]
 let circBuf=null;
 function teachCirc(){
-  const n=`P[${ptC}]`;PREG[n]=ja.map(v=>v*RAD);ptC++;
-  const l=document.getElementById('pts');if(ptC===2)l.innerHTML='';
-  const a=PREG[n].map(v=>v.toFixed(1)+'\u00B0').join(', ');
-  l.innerHTML+=`<div style="margin-bottom:3px"><span style="color:var(--accent)">${n}</span>: ${a}</div>`;
+  const n=`P[${ptC}]`;PREG[n]=ja.map(v=>v*RAD);delete PREG_AUTO[n];ptC++;
+  refreshPoints();
   if(!circBuf){
     circBuf=n;
     setTPStatus('pause',`${n} = punto VIA. Ora muovi il robot al punto DESTINAZIONE e premi TEACH C di nuovo.`);
   } else {
-    const ta=document.getElementById('tp-area');
-    const lines=ta.value.split('\n').filter(l=>l.trim());
-    const lineNum=lines.length;
-    const ins=`${lineNum}: C ${circBuf} ${n} 200mm/sec FINE`;
-    ta.value=ta.value.replace('/END',ins+'\n/END');
-    updateGutter();
+    appendTP(`C ${circBuf} ${n} 200mm/sec FINE`);
     setTPStatus('run',`Arco: ${circBuf}\u2192${n} registrato`);
     setTimeout(()=>setTPStatus('idle','PRONTO'),2000);
     circBuf=null;
@@ -1084,11 +1147,11 @@ function teachCirc(){
 // Circular arc interpolation: 3 points (start, via, end) -> arc in Cartesian space
 function circArc(startAngles, viaAngles, endAngles, steps){
   // Get TCP positions for all 3 poses
-  const save=ja.slice();
+  const save=ja.slice();fkQuiet=true;
   ja=startAngles.map(v=>v*DEG);updateFK();const pS=getTCP().clone();
   ja=viaAngles.map(v=>v*DEG);updateFK();const pV=getTCP().clone();
   ja=endAngles.map(v=>v*DEG);updateFK();const pE=getTCP().clone();
-  ja=save.slice();updateFK();
+  ja=save;updateFK();fkQuiet=false;
   // Fit circle through 3 points using circumcircle
   const ax=pS.x,ay=pS.y,az=pS.z;
   const bx=pV.x,by=pV.y,bz=pV.z;
@@ -1160,8 +1223,8 @@ function tickCirc(){
   if(circIdx>=circPts.length){circAnim=false;if(circCb)circCb();return}
   const p=circPts[circIdx];
   // IK to reach this cartesian point (tool down)
-  const sol=solveIK6(p.x,p.z,p.y,180,0,0);
-  if(sol){setJD(sol.map(v=>v*RAD))}
+  const pr=sceneToRobot(p);const sol=solveIK6(pr[0],pr[1],pr[2],180,0,0);
+  if(sol){setJD(sol)}
   circIdx++;
   setTimeout(tickCirc,circDelay);
 }
@@ -1169,139 +1232,248 @@ function tickCirc(){
 // ══════════════════════════
 // TP PROGRAM EXECUTOR (advanced)
 // ══════════════════════════
-let pRun=false,pPause=false,pStep=0,pLines=[];
+let pRun=false,pPause=false,pStep=0,pLines=[],pLoops=[];
 
 function setTPStatus(state,msg,line){
   const dot=document.getElementById('tp-dot');const m=document.getElementById('tp-msg');const li=document.getElementById('tp-line');
   dot.className='dot '+state;m.textContent=msg;li.textContent=line?'Ln '+line:'';
 }
 
-function parseProg(){return document.getElementById('tp-area').value.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('/')&&!l.startsWith('!'))}
+// Ogni istruzione conserva l'indice della RIGA SORGENTE da cui proviene: senza
+// questo l'evidenziazione nel gutter e' sfasata, perche' parseProg() scarta
+// /PROG, /END, righe vuote e commenti "!".
+function parseProg(){
+  const out=[];
+  document.getElementById('tp-area').value.split('\n').forEach((raw,src)=>{
+    const t=raw.trim();
+    if(!t||t.startsWith('/')||t.startsWith('!'))return;
+    out.push({t:t,src:src});
+  });
+  return out;
+}
+
+// Indice (in pLines) della LBL[n] richiesta, -1 se l'etichetta non esiste.
+function findLabel(n){return pLines.findIndex(l=>new RegExp('^\\d*:?\\s*LBL\\['+n+'\\]','i').test(l.t))}
+
+function progError(msg,line){
+  pRun=false;pPause=false;anim_=false;
+  setTPStatus('err',msg,line);
+}
 
 function runProg(){
-  if(pRun)return;pRun=true;pPause=false;pStep=0;pLines=parseProg();
+  if(pRun)return;pRun=true;pPause=false;pStep=0;pLoops=[];pLines=parseProg();
+  if(!pLines.length){progError('Programma vuoto');return}
   setTPStatus('run','ESECUZIONE...');execNext();
 }
-function stopProg(){pRun=false;pPause=false;anim_=false;setTPStatus('idle','FERMATO');highlightLine(-1)}
+function stopProg(){pRun=false;pPause=false;anim_=false;circAnim=false;pLoops=[];setTPStatus('idle','FERMATO');highlightLine(-1)}
 function pauseProg(){if(!pRun)return;pPause=!pPause;setTPStatus(pPause?'pause':'run',pPause?'PAUSA':'RIPRESA')}
 function stepProg(){
-  if(!pLines.length)pLines=parseProg();
-  if(pStep<pLines.length){pRun=true;pPause=false;execSingle(pLines[pStep],()=>{pStep++;pRun=false;
-    setTPStatus('pause',`Riga ${pStep}/${pLines.length}`,pStep)});}
+  if(!pLines.length){pLines=parseProg();pStep=0;pLoops=[]}
+  if(pStep>=pLines.length){pStep=0;pLoops=[];setTPStatus('idle','PRONTO');highlightLine(-1);return}
+  pRun=true;pPause=false;
+  const cur=pLines[pStep];highlightLine(cur.src);
+  execSingle(cur.t,()=>{pStep++;pRun=false;
+    setTPStatus('pause',`Riga ${pStep}/${pLines.length}`,pStep)});
 }
 
 function execNext(){
   if(!pRun||pPause){if(pPause)setTimeout(execNext,100);return}
   if(pStep>=pLines.length){pRun=false;setTPStatus('idle','COMPLETATO');highlightLine(-1);return}
-  const line=pLines[pStep];
-  highlightLine(pStep);
-  setTPStatus('run',line,pStep+1);
-  execSingle(line,()=>{pStep++;execNext()});
+  const cur=pLines[pStep];
+  highlightLine(cur.src);
+  setTPStatus('run',cur.t,cur.src+1);
+  execSingle(cur.t,()=>{pStep++;execNext()});
+}
+
+// Punti non insegnati: il simulatore ne genera uno plausibile per far girare
+// subito i programmi di esempio, ma lo dichiara — su un robot reale sarebbe
+// un errore di posizione non inizializzata.
+const AUTO_PT=[
+  [0,-20,-40,0,-70,0],
+  [30,-45,-30,0,-60,0],
+  [30,-30,-50,0,-55,0],
+  [-30,-45,-30,0,-60,0],
+  [-30,-30,-50,0,-55,0],
+];
+function ensurePoint(pn,idx){
+  if(PREG[pn])return false;
+  PREG[pn]=AUTO_PT[(idx-1)%AUTO_PT.length].slice();
+  PREG_AUTO[pn]=true;
+  refreshPoints();
+  return true;
+}
+
+// Valuta il membro destro di R[n]= e le condizioni di IF.
+function regValue(tok){
+  const m=String(tok).trim().match(/^R\[(\d+)\]$/i);
+  if(m)return REG[parseInt(m[1])-1];
+  const n=parseFloat(tok);
+  return isNaN(n)?null:n;
+}
+function compare(a,op,b){
+  switch(op){case '>=':return a>=b;case '<=':return a<=b;case '>':return a>b;case '<':return a<b;
+    case '<>':case '!=':return a!==b;default:return a===b}
 }
 
 function execSingle(line,cb){
-  const stripped=line.replace(/^\d+:\s*/,'');
+  const stripped=line.replace(/^\d+:\s*/,'').trim();
   const ovr=parseInt(document.getElementById('ovs').value)/100;
 
-  // Movement: J P[n] or L P[n]
+  // ── Movimento lineare/giunto: J P[n] 100% FINE | L P[n] 250mm/sec CNT50 ──
   const mv=stripped.match(/^([JL])\s+P\[(\d+)\]\s+(\d+)(%|mm\/sec)\s*(FINE|CNT\d*)/i);
   if(mv){
-    const pn=`P[${mv[2]}]`;
-    if(PREG[pn]){animTo(PREG[pn],1500/ovr);setTimeout(cb,1600/ovr)}
-    else{
-      // Safe fallback: use IK for a position above the base
-      const idx=parseInt(mv[2])||1;
-      const safePositions=[
-        [0,-20,-40,0,-70,0],   // P1: home-like
-        [30,-45,-30,0,-60,0],  // P2: forward reach
-        [30,-30,-50,0,-55,0],  // P3: mid height
-        [-30,-45,-30,0,-60,0], // P4: other side
-        [-30,-30,-50,0,-55,0], // P5: mid other
-      ];
-      const safe=safePositions[(idx-1)%safePositions.length];
-      PREG[pn]=safe;
-      animTo(safe,1200/ovr);setTimeout(cb,1300/ovr);
-    }
+    const idx=parseInt(mv[2]),pn=`P[${idx}]`;
+    if(ensurePoint(pn,idx))setTPStatus('warn',`${pn} non insegnato: uso una posizione automatica`);
+    animTo(PREG[pn],1500/ovr);setTimeout(cb,1600/ovr);
     return;
   }
-  // Circular: C P[via] P[dest] speed FINE
+  // ── Movimento circolare: C P[via] P[dest] 200mm/sec FINE ──
   const cm=stripped.match(/^C\s+P\[(\d+)\]\s+P\[(\d+)\]\s+(\d+)(mm\/sec|%)\s*(FINE|CNT\d*)/i);
   if(cm){
-    const via=`P[${cm[1]}]`,dest=`P[${cm[2]}]`;
-    const startAng=ja.map(v=>v*RAD);
-    const viaAng=PREG[via]||[0,0,0,0,0,0];
-    const destAng=PREG[dest]||[0,0,0,0,0,0];
-    animCirc(startAng,viaAng,destAng,2500/ovr,cb);
+    const vi=parseInt(cm[1]),di=parseInt(cm[2]);
+    const via=`P[${vi}]`,dest=`P[${di}]`;
+    if(ensurePoint(via,vi)|ensurePoint(dest,di))setTPStatus('warn','Punti dell\'arco non insegnati: uso posizioni automatiche');
+    animCirc(ja.map(v=>v*RAD),PREG[via],PREG[dest],2500/ovr,cb);
     return;
   }
-  // DO[n]=ON/OFF
+  // ── Uscite digitali ──
   const dm=stripped.match(/^DO\[(\d+)\]=(ON|OFF)/i);
-  if(dm){setDO(parseInt(dm[1]),dm[2]==='ON');setTimeout(cb,200);return}
-  // WAIT
-  const wm=stripped.match(/^WAIT\s+([\d.]+)/);
-  if(wm){setTimeout(cb,parseFloat(wm[1])*1000);return}
-  // DI check: WAIT DI[n]=ON
+  if(dm){setDO(parseInt(dm[1]),/on/i.test(dm[2]));setTimeout(cb,200);return}
+  // ── Attesa su ingresso: WAIT DI[n]=ON  (prima dell'attesa a tempo) ──
   const wdi=stripped.match(/^WAIT\s+DI\[(\d+)\]=(ON|OFF)/i);
   if(wdi){
-    const idx=parseInt(wdi[1])-1;const target=wdi[2]==='ON';
-    const check=()=>{if(!pRun)return;if(DI_STATE[idx]===target)cb();else setTimeout(check,100)};check();return;
+    const idx=parseInt(wdi[1])-1,target=/on/i.test(wdi[2]);
+    setTPStatus('pause',`Attendo DI[${idx+1}]=${target?'ON':'OFF'} — clicca l'ingresso nel pannello I/O`);
+    const check=()=>{if(!pRun)return;if(DI_STATE[idx]===target){setTPStatus('run',stripped);cb()}else setTimeout(check,100)};
+    check();return;
   }
-  // R[n]=expr
-  const rm=stripped.match(/^R\[(\d+)\]\s*=\s*(.+)/);
+  // ── Attesa a tempo ──
+  const wm=stripped.match(/^WAIT\s+([\d.]+)/);
+  if(wm){setTimeout(cb,parseFloat(wm[1])*1000);return}
+  // ── Registri: R[n]=<val|R[m]> [+-*/ <val|R[m]>] ──
+  const rm=stripped.match(/^R\[(\d+)\]\s*=\s*(.+)$/i);
   if(rm){
-    const idx=parseInt(rm[1])-1;const expr=rm[2].trim();
-    // Simple eval: R[n]+val, R[n]-val, number
-    const refM=expr.match(/R\[(\d+)\]\s*([+\-*])\s*([\d.]+)/);
-    if(refM){const rv=REG[parseInt(refM[1])-1];const v=parseFloat(refM[3]);
-      if(refM[2]==='+')REG[idx]=rv+v;else if(refM[2]==='-')REG[idx]=rv-v;else REG[idx]=rv*v;}
-    else{const n=parseFloat(expr);if(!isNaN(n))REG[idx]=n}
-    updateRegDisp();setTimeout(cb,100);return;
+    const idx=parseInt(rm[1])-1,expr=rm[2].trim();
+    const bin=expr.match(/^(R\[\d+\]|-?[\d.]+)\s*([+\-*/])\s*(R\[\d+\]|-?[\d.]+)$/i);
+    let val;
+    if(bin){
+      const a=regValue(bin[1]),b=regValue(bin[3]);
+      if(a===null||b===null){progError('Espressione non valida: '+expr);return}
+      val=bin[2]==='+'?a+b:bin[2]==='-'?a-b:bin[2]==='*'?a*b:(b===0?NaN:a/b);
+    } else val=regValue(expr);
+    if(val===null||isNaN(val)){progError('Espressione non valida: '+expr);return}
+    REG[idx]=val;updateRegDisp();setTimeout(cb,100);return;
   }
-  // IF R[n]>=val, JMP LBL[m]
-  const ifm=stripped.match(/^IF\s+R\[(\d+)\]\s*([><=!]+)\s*([\d.]+)\s*,\s*JMP\s+LBL\[(\d+)\]/i);
+  // ── IF <cond>, JMP LBL[n]   con cond su registri, DI o DO ──
+  const ifm=stripped.match(/^IF\s+(.+?)\s*,\s*JMP\s+LBL\[(\d+)\]/i);
   if(ifm){
-    const rv=REG[parseInt(ifm[1])-1];const cmp=ifm[2];const val=parseFloat(ifm[3]);const lbl=parseInt(ifm[4]);
-    let cond=false;
-    if(cmp==='>=')cond=rv>=val;else if(cmp==='<=')cond=rv<=val;else if(cmp==='>') cond=rv>val;
-    else if(cmp==='<')cond=rv<val;else if(cmp==='='||cmp==='==')cond=rv===val;else if(cmp==='!=')cond=rv!==val;
-    if(cond){const tgt=pLines.findIndex(l=>l.match(new RegExp(`LBL\\[${lbl}\\]`)));if(tgt>=0)pStep=tgt-1}// -1 because execNext increments
+    const cond=ifm[1].trim(),lbl=parseInt(ifm[2]);
+    let ok=null;
+    const io=cond.match(/^(DI|DO)\[(\d+)\]\s*=\s*(ON|OFF)$/i);
+    const rc=cond.match(/^(R\[\d+\])\s*(>=|<=|<>|!=|==|=|>|<)\s*(R\[\d+\]|-?[\d.]+)$/i);
+    if(io){
+      const st=/^di$/i.test(io[1])?DI_STATE:DO_STATE;
+      ok=st[parseInt(io[2])-1]===/on/i.test(io[3]);
+    } else if(rc){
+      const a=regValue(rc[1]),b=regValue(rc[3]);
+      if(a!==null&&b!==null)ok=compare(a,rc[2],b);
+    }
+    if(ok===null){progError('Condizione IF non riconosciuta: '+cond);return}
+    if(ok){
+      const tgt=findLabel(lbl);
+      if(tgt<0){progError('Etichetta LBL['+lbl+'] non trovata');return}
+      pStep=tgt-1; // execNext incrementa
+    }
     setTimeout(cb,50);return;
   }
-  // JMP LBL[n]
+  // ── FOR R[n]=a TO b ... ENDFOR ──
+  const fm=stripped.match(/^FOR\s+R\[(\d+)\]\s*=\s*(-?[\d.]+)\s+TO\s+(-?[\d.]+)/i);
+  if(fm){
+    const idx=parseInt(fm[1])-1,from=parseFloat(fm[2]),to=parseFloat(fm[3]);
+    const top=pLoops[pLoops.length-1];
+    if(!top||top.head!==pStep){        // primo ingresso nel ciclo
+      REG[idx]=from;updateRegDisp();
+      pLoops.push({head:pStep,reg:idx,to:to,step:to>=from?1:-1});
+      if((to>=from&&from>to)||(to<from&&from<to)){const e=findEndFor(pStep);pStep=e<0?pLines.length:e}
+    }
+    setTimeout(cb,50);return;
+  }
+  if(/^ENDFOR\b/i.test(stripped)){
+    const top=pLoops[pLoops.length-1];
+    if(!top){progError('ENDFOR senza FOR');return}
+    REG[top.reg]+=top.step;updateRegDisp();
+    const done=top.step>0?REG[top.reg]>top.to:REG[top.reg]<top.to;
+    if(done)pLoops.pop(); else pStep=top.head; // execNext incrementa: si riparte dalla riga dopo il FOR
+    setTimeout(cb,50);return;
+  }
+  // ── Salto incondizionato ──
   const jmp=stripped.match(/^JMP\s+LBL\[(\d+)\]/i);
-  if(jmp){const lbl=parseInt(jmp[1]);const tgt=pLines.findIndex(l=>l.match(new RegExp(`LBL\\[${lbl}\\]`)));if(tgt>=0)pStep=tgt-1;setTimeout(cb,50);return}
-  // LBL[n] — just pass
-  if(stripped.match(/^LBL\[\d+\]/i)){setTimeout(cb,20);return}
-  // CALL
-  if(stripped.match(/^CALL/i)){setTPStatus('warn','CALL: sottoprogramma non caricato');setTimeout(cb,500);return}
-  // Default
-  setTimeout(cb,100);
+  if(jmp){
+    const tgt=findLabel(parseInt(jmp[1]));
+    if(tgt<0){progError('Etichetta LBL['+jmp[1]+'] non trovata');return}
+    pStep=tgt-1;setTimeout(cb,50);return;
+  }
+  // ── Etichetta: nessuna azione ──
+  if(/^LBL\[\d+\]/i.test(stripped)){setTimeout(cb,20);return}
+  // ── Sottoprogramma: non implementato, ma dichiarato ──
+  if(/^CALL\b/i.test(stripped)){setTPStatus('warn','CALL: sottoprogramma non caricato, riga ignorata');setTimeout(cb,500);return}
+
+  // Istruzione sconosciuta: si ferma, come farebbe il controllore
+  progError('Istruzione non riconosciuta: '+stripped);
+}
+
+// Indice dell'ENDFOR che chiude il FOR alla riga data (gestisce l'annidamento).
+function findEndFor(from){
+  let depth=0;
+  for(let i=from;i<pLines.length;i++){
+    const t=pLines[i].t.replace(/^\d+:\s*/,'');
+    if(/^FOR\b/i.test(t))depth++;
+    else if(/^ENDFOR\b/i.test(t)){depth--;if(depth===0)return i}
+  }
+  return -1;
 }
 
 // ── Envelope ──
+// Inviluppo di lavoro: si campiona la griglia J2 x J3 sui finecorsa reali, si
+// calcola il TCP con la stessa cinematica del modello e si rivoluziona il
+// profilo lungo la corsa di J1. La formula precedente ignorava del tutto J3 e
+// disegnava un volume che il robot non puo' raggiungere.
 function buildEnvelope(){
-  const pts=[];const s=20;
-  for(let i=0;i<=s;i++)for(let j=0;j<=s;j++){
-    const j1=(LIM[0][0]+(LIM[0][1]-LIM[0][0])*i/s)*DEG;
-    const j2=(LIM[1][0]+(LIM[1][1]-LIM[1][0])*j/s)*DEG;
-    const r=DH.a1+DH.a2*Math.cos(j2)+DH.d4;const z=DH.d1+DH.a2*Math.sin(j2);
-    pts.push(new THREE.Vector3(r*Math.cos(j1),z,r*Math.sin(j1)));
+  const nJ=36,nR=28,pts=[];
+  const j1min=LIM[0][0]*DEG,j1max=LIM[0][1]*DEG;
+  for(let i=0;i<=nJ;i++)for(let j=0;j<=nJ;j++){
+    const j2=(LIM[1][0]+(LIM[1][1]-LIM[1][0])*i/nJ)*DEG;
+    const j3=(LIM[2][0]+(LIM[2][1]-LIM[2][0])*j/nJ)*DEG;
+    // TCP nel piano del braccio, polso disteso (J4=J5=J6=0)
+    const c2=Math.cos(j2),s2=Math.sin(j2),c23=Math.cos(j2+j3),s23=Math.sin(j2+j3);
+    const r=DH.a1+(DH.a3*c2-DH.a2*s2)-(KIN.L3+KIN.D6)*s23;
+    const y=DH.d1+(DH.a3*s2+DH.a2*c2)+(KIN.L3+KIN.D6)*c23;
+    if(y<0)continue;                        // sotto il pavimento
+    for(let a=0;a<=nR;a++){
+      const t=j1min+(j1max-j1min)*a/nR;
+      pts.push(new THREE.Vector3(r*Math.cos(t),y,-r*Math.sin(t)));
+    }
   }
-  envMesh=new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts),new THREE.PointsMaterial({color:0xf5a623,size:2,transparent:true,opacity:.12}));
+  envMesh=new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts),new THREE.PointsMaterial({color:0xf5a623,size:2,transparent:true,opacity:.10,depthWrite:false}));
   scene.add(envMesh);envMesh.visible=showEnv;
 }
 
 // ── DH Frames ──
+// Terne solidali ai link del modello (NON una tabella di Denavit-Hartenberg:
+// il modello e' costruito come catena di gruppi Three.js, non da parametri DH).
+// Ogni terna e' disegnata nell'origine del proprio gruppo, tranne J4 che
+// altrimenti coinciderebbe con J3: la si porta sul centro polso, punto della
+// sua stessa asse dove si incontrano anche J5 e J6.
 function buildDHFrames(){
-  const sz=60; // axis length
+  const sz=60; // lunghezza degli assi
   const labels=['J1','J2','J3','J4','J5','J6'];
-  const origins=[ // local offset within each jp group where the DH frame origin sits
+  const origins=[
     {x:0,y:0,z:0},         // J1: base
-    {x:0,y:0,z:0},         // J2: shoulder
-    {x:0,y:0,z:0},         // J3: elbow
-    {x:0,y:0,z:0},         // J4: wrist roll
-    {x:0,y:0,z:0},         // J5: wrist pitch
-    {x:0,y:DH.d6,z:0},     // J6: flange (TCP)
+    {x:0,y:0,z:0},         // J2: spalla
+    {x:0,y:0,z:0},         // J3: gomito
+    {x:0,y:KIN.L3,z:0},    // J4: centro polso (sull'asse di J4)
+    {x:0,y:0,z:0},         // J5: centro polso
+    {x:0,y:KIN.TCPO,z:0},  // J6: TCP
   ];
   for(let i=0;i<6;i++){
     const g=new THREE.Group();
@@ -1345,7 +1517,7 @@ const CH=[
   {n:'2. Verticale',d:'J2 a +90\u00B0',f:()=>Math.abs(ja[1]*RAD-90)<5},
   {n:'3. Rotazione',d:'J1=90\u00B0, altri 0\u00B0',f:()=>{const d=ja.map(v=>v*RAD);return Math.abs(d[0]-90)<5&&d.slice(1).every(v=>Math.abs(v)<5)}},
   {n:'4. Polso',d:'J4=90, J5=45, J6=180',f:()=>{const d=ja.map(v=>v*RAD);return Math.abs(d[3]-90)<5&&Math.abs(d[4]-45)<5&&Math.abs(d[5]-180)<5}},
-  {n:'5. IK Test',d:'Usa IK per X=300 Y=0 Z=200 W=180',f:()=>{const p=getTCP();return Math.abs(p.x-300)<30&&Math.abs(p.z)<30&&Math.abs(p.y-200)<30}},
+  {n:'5. IK Test',d:'Usa IK per X=300 Y=0 Z=200 W=180',f:()=>{const p=sceneToRobot(getTCP());return Math.abs(p[0]-300)<30&&Math.abs(p[1])<30&&Math.abs(p[2]-200)<30}},
   {n:'6. Pick & Place',d:'Esegui un programma con DO[1]',f:()=>DO_STATE[0]},
   {n:'7. Registro',d:'Porta R[1] a 5',f:()=>REG[0]===5},
 ];
@@ -1385,7 +1557,14 @@ function animate(){
   ren.render(scene,cam);
 }
 
-init();updateFK();
+if(typeof THREE==='undefined'){
+  document.getElementById('viewport').innerHTML=
+    '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'+
+    'text-align:center;padding:24px;font-family:monospace;font-size:12px;color:var(--red);line-height:1.7">'+
+    'Libreria 3D non caricata.<br>Verifica che <b>assets/vendor/three.min.js</b><br>sia presente nella cartella del plugin.</div>';
+} else {
+  init();updateFK();
+}
 </script>
 </body>
 </html>
